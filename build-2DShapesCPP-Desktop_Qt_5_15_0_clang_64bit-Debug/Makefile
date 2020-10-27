@@ -53,10 +53,14 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = ../2DShapesCPP/main.cpp \
-		../2DShapesCPP/mainwindow.cpp moc_mainwindow.cpp
+		../2DShapesCPP/mainwindow.cpp \
+		../2DShapesCPP/renderarea.cpp moc_mainwindow.cpp \
+		moc_renderarea.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
-		moc_mainwindow.o
+		renderarea.o \
+		moc_mainwindow.o \
+		moc_renderarea.o
 DIST          = ../../../Qt/5.15.0/clang_64/mkspecs/features/spec_pre.prf \
 		../../../Qt/5.15.0/clang_64/mkspecs/qdevice.pri \
 		../../../Qt/5.15.0/clang_64/mkspecs/features/device_config.prf \
@@ -220,6 +224,7 @@ DIST          = ../../../Qt/5.15.0/clang_64/mkspecs/features/spec_pre.prf \
 		../../../Qt/5.15.0/clang_64/mkspecs/features/qt_config.prf \
 		../../../Qt/5.15.0/clang_64/mkspecs/macx-clang/qmake.conf \
 		../../../Qt/5.15.0/clang_64/mkspecs/features/spec_post.prf \
+		../2DShapesCPP/.qmake.stash \
 		../../../Qt/5.15.0/clang_64/mkspecs/features/exclusive_builds.prf \
 		../../../Qt/5.15.0/clang_64/mkspecs/features/mac/sdk.prf \
 		../../../Qt/5.15.0/clang_64/mkspecs/features/toolchain.prf \
@@ -248,8 +253,10 @@ DIST          = ../../../Qt/5.15.0/clang_64/mkspecs/features/spec_pre.prf \
 		../../../Qt/5.15.0/clang_64/mkspecs/features/exceptions.prf \
 		../../../Qt/5.15.0/clang_64/mkspecs/features/yacc.prf \
 		../../../Qt/5.15.0/clang_64/mkspecs/features/lex.prf \
-		../2DShapesCPP/2DShapesCPP.pro ../2DShapesCPP/mainwindow.h ../2DShapesCPP/main.cpp \
-		../2DShapesCPP/mainwindow.cpp
+		../2DShapesCPP/2DShapesCPP.pro ../2DShapesCPP/mainwindow.h \
+		../2DShapesCPP/renderarea.h ../2DShapesCPP/main.cpp \
+		../2DShapesCPP/mainwindow.cpp \
+		../2DShapesCPP/renderarea.cpp
 QMAKE_TARGET  = 2DShapesCPP
 DESTDIR       = 
 TARGET        = 2DShapesCPP.app/Contents/MacOS/2DShapesCPP
@@ -435,6 +442,7 @@ Makefile: ../2DShapesCPP/2DShapesCPP.pro ../../../Qt/5.15.0/clang_64/mkspecs/mac
 		../../../Qt/5.15.0/clang_64/mkspecs/features/qt_config.prf \
 		../../../Qt/5.15.0/clang_64/mkspecs/macx-clang/qmake.conf \
 		../../../Qt/5.15.0/clang_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		../../../Qt/5.15.0/clang_64/mkspecs/features/exclusive_builds.prf \
 		../../../Qt/5.15.0/clang_64/mkspecs/features/mac/sdk.prf \
 		../../../Qt/5.15.0/clang_64/mkspecs/features/toolchain.prf \
@@ -631,6 +639,7 @@ Makefile: ../2DShapesCPP/2DShapesCPP.pro ../../../Qt/5.15.0/clang_64/mkspecs/mac
 ../../../Qt/5.15.0/clang_64/mkspecs/features/qt_config.prf:
 ../../../Qt/5.15.0/clang_64/mkspecs/macx-clang/qmake.conf:
 ../../../Qt/5.15.0/clang_64/mkspecs/features/spec_post.prf:
+.qmake.stash:
 ../../../Qt/5.15.0/clang_64/mkspecs/features/exclusive_builds.prf:
 ../../../Qt/5.15.0/clang_64/mkspecs/features/mac/sdk.prf:
 ../../../Qt/5.15.0/clang_64/mkspecs/features/toolchain.prf:
@@ -693,8 +702,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents ../../../Qt/5.15.0/clang_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../2DShapesCPP/mainwindow.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../2DShapesCPP/main.cpp ../2DShapesCPP/mainwindow.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../2DShapesCPP/mainwindow.h ../2DShapesCPP/renderarea.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../2DShapesCPP/main.cpp ../2DShapesCPP/mainwindow.cpp ../2DShapesCPP/renderarea.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../2DShapesCPP/mainwindow.ui $(DISTDIR)/
 
 
@@ -705,6 +714,7 @@ clean: compiler_clean
 
 distclean: clean 
 	-$(DEL_FILE) -r 2DShapesCPP.app
+	-$(DEL_FILE) .qmake.stash
 	-$(DEL_FILE) Makefile
 
 
@@ -729,15 +739,22 @@ compiler_moc_predefs_clean:
 moc_predefs.h: ../../../Qt/5.15.0/clang_64/mkspecs/features/data/dummy.cpp
 	/Library/Developer/CommandLineTools/usr/bin/clang++ -pipe -stdlib=libc++ -g -std=gnu++11 $(EXPORT_ARCH_ARGS) -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -mmacosx-version-min=10.13 -Wall -Wextra -dM -E -o moc_predefs.h ../../../Qt/5.15.0/clang_64/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_mainwindow.cpp
+compiler_moc_header_make_all: moc_mainwindow.cpp moc_renderarea.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_mainwindow.cpp
+	-$(DEL_FILE) moc_mainwindow.cpp moc_renderarea.cpp
 moc_mainwindow.cpp: ../2DShapesCPP/mainwindow.h \
 		../../../Qt/5.15.0/clang_64/lib/QtWidgets.framework/Headers/QMainWindow \
 		../../../Qt/5.15.0/clang_64/lib/QtWidgets.framework/Headers/qmainwindow.h \
 		moc_predefs.h \
 		../../../Qt/5.15.0/clang_64/bin/moc
 	/Users/connercook/Qt/5.15.0/clang_64/bin/moc $(DEFINES) --include /Users/connercook/Projects/2D-Shapes-Render/build-2DShapesCPP-Desktop_Qt_5_15_0_clang_64bit-Debug/moc_predefs.h -I/Users/connercook/Qt/5.15.0/clang_64/mkspecs/macx-clang -I/Users/connercook/Projects/2D-Shapes-Render/2DShapesCPP -I/Users/connercook/Qt/5.15.0/clang_64/lib/QtWidgets.framework/Headers -I/Users/connercook/Qt/5.15.0/clang_64/lib/QtGui.framework/Headers -I/Users/connercook/Qt/5.15.0/clang_64/lib/QtCore.framework/Headers -I. -I/Library/Developer/CommandLineTools/usr/include/c++/v1 -I/Library/Developer/CommandLineTools/usr/lib/clang/11.0.0/include -I/Library/Developer/CommandLineTools/usr/include -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include -F/Users/connercook/Qt/5.15.0/clang_64/lib ../2DShapesCPP/mainwindow.h -o moc_mainwindow.cpp
+
+moc_renderarea.cpp: ../2DShapesCPP/renderarea.h \
+		../../../Qt/5.15.0/clang_64/lib/QtWidgets.framework/Headers/QWidget \
+		../../../Qt/5.15.0/clang_64/lib/QtWidgets.framework/Headers/qwidget.h \
+		moc_predefs.h \
+		../../../Qt/5.15.0/clang_64/bin/moc
+	/Users/connercook/Qt/5.15.0/clang_64/bin/moc $(DEFINES) --include /Users/connercook/Projects/2D-Shapes-Render/build-2DShapesCPP-Desktop_Qt_5_15_0_clang_64bit-Debug/moc_predefs.h -I/Users/connercook/Qt/5.15.0/clang_64/mkspecs/macx-clang -I/Users/connercook/Projects/2D-Shapes-Render/2DShapesCPP -I/Users/connercook/Qt/5.15.0/clang_64/lib/QtWidgets.framework/Headers -I/Users/connercook/Qt/5.15.0/clang_64/lib/QtGui.framework/Headers -I/Users/connercook/Qt/5.15.0/clang_64/lib/QtCore.framework/Headers -I. -I/Library/Developer/CommandLineTools/usr/include/c++/v1 -I/Library/Developer/CommandLineTools/usr/lib/clang/11.0.0/include -I/Library/Developer/CommandLineTools/usr/include -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include -F/Users/connercook/Qt/5.15.0/clang_64/lib ../2DShapesCPP/renderarea.h -o moc_renderarea.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -747,7 +764,10 @@ compiler_uic_make_all: ui_mainwindow.h
 compiler_uic_clean:
 	-$(DEL_FILE) ui_mainwindow.h
 ui_mainwindow.h: ../2DShapesCPP/mainwindow.ui \
-		../../../Qt/5.15.0/clang_64/bin/uic
+		../../../Qt/5.15.0/clang_64/bin/uic \
+		../2DShapesCPP/renderarea.h \
+		../../../Qt/5.15.0/clang_64/lib/QtWidgets.framework/Headers/QWidget \
+		../../../Qt/5.15.0/clang_64/lib/QtWidgets.framework/Headers/qwidget.h
 	/Users/connercook/Qt/5.15.0/clang_64/bin/uic ../2DShapesCPP/mainwindow.ui -o ui_mainwindow.h
 
 compiler_rez_source_make_all:
@@ -775,8 +795,16 @@ mainwindow.o: ../2DShapesCPP/mainwindow.cpp ../2DShapesCPP/mainwindow.h \
 		ui_mainwindow.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../2DShapesCPP/mainwindow.cpp
 
+renderarea.o: ../2DShapesCPP/renderarea.cpp ../2DShapesCPP/renderarea.h \
+		../../../Qt/5.15.0/clang_64/lib/QtWidgets.framework/Headers/QWidget \
+		../../../Qt/5.15.0/clang_64/lib/QtWidgets.framework/Headers/qwidget.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o renderarea.o ../2DShapesCPP/renderarea.cpp
+
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp
+
+moc_renderarea.o: moc_renderarea.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_renderarea.o moc_renderarea.cpp
 
 ####### Install
 
